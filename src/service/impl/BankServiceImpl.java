@@ -67,6 +67,79 @@ public class BankServiceImpl  implements BankService {
 
     }
 
+    @Override
+    public void withdraw(String accountNumber, double amount, String note) {
+        Account account= accountRepository.findByNumber(accountNumber).
+                orElseThrow(() -> new RuntimeException("Account not found"+ accountNumber));
+
+       if(account.getBalance()  <0)
+            new RuntimeException("Insufficient Balance");
+
+        account.setBalance(account.getBalance() - amount);
+        Transaction transaction = new Transaction(
+                UUID.randomUUID().toString(),   // id
+                Type.WITHDRAW,                   // type
+                account.getAccountNumber(),     // accountNumber
+                amount,                         // amount
+                LocalDateTime.now(),            // timestamp
+                note                          // note
+        );
+        transactionRepository.add(transaction);
+
+
+
+
+    }
+
+    @Override
+    public void tranfer(String fromAccount, String toAccount, double amount, String note) {
+        if(fromAccount.equals(toAccount))
+            throw new RuntimeException("Cannot transfer to your own Account");
+        Account fromAcc= accountRepository.findByNumber(fromAccount).
+                orElseThrow(() -> new RuntimeException("Account not found"+ fromAccount));
+
+        Account toAcc= accountRepository.findByNumber(toAccount).
+                orElseThrow(()->new RuntimeException("Account not found"+ toAccount));
+        if(fromAcc.getBalance()  <0)
+            new RuntimeException("Insufficient Balance");
+
+        fromAcc.setBalance(fromAcc.getBalance() - amount);
+
+        toAcc.setBalance(toAcc.getBalance() + amount);
+
+        Transaction fromTransaction = new Transaction(
+                UUID.randomUUID().toString(),   // id
+                Type.TRANSFER_OUT,                   // type
+                fromAcc.getAccountNumber(),     // accountNumber
+                amount,                         // amount
+                LocalDateTime.now(),            // timestamp
+                note                          // note
+        );
+
+        transactionRepository.add(fromTransaction);
+
+        Transaction toTransaction = new Transaction(
+                UUID.randomUUID().toString(),   // id
+                Type.TRANSFER_IN,                   // type
+                toAcc.getAccountNumber(),     // accountNumber
+                amount,                         // amount
+                LocalDateTime.now(),            // timestamp
+                note                          // note
+        );
+        transactionRepository.add(fromTransaction);
+
+
+
+
+
+    }
+
+    @Override
+    public List<Transaction> getStatement(String account) {
+        return transactionRepository.findByAccount(account).stream().
+                sorted(Comparator.comparing(Transaction::getAccountNumber)).collect(Collectors.toList());
+    }
+
     private String getAccountNumber() {
         int size= accountRepository.findAll().size()+1;
         return String.format("AC%06d", size);

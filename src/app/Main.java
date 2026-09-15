@@ -31,9 +31,9 @@ public class Main {
             switch(choice){
                 case "1" -> openAccount(scanner, bankService);
                 case "2" -> Deposit(scanner, bankService);
-                case "3" -> withdraw(scanner);
-                case "4" -> Tranfer(scanner);
-                case "5" -> AccountStatement(scanner);
+                case "3" -> withdraw(scanner, bankService);
+                case "4" -> Tranfer(scanner, bankService);
+                case "5" -> AccountStatement(scanner, bankService);
                 case "6" -> searchAccount(scanner);
                 case "7" -> listAccounts(scanner, bankService);
                 case "0" -> running=false;
@@ -75,15 +75,38 @@ public class Main {
 
     }
 
-    private static void withdraw(Scanner scanner){
+    private static void withdraw(Scanner scanner, BankService bankService){
+        System.out.println("Account Number: ");
+        String accountNumber=scanner.nextLine().trim();
+        System.out.println("Amount: ");
+        double amount= Double.valueOf(scanner.nextLine().trim());
+        bankService.withdraw(accountNumber, amount, "withdrawal");
+        System.out.println("Amount Withdraw ");
 
     }
 
-    private static void Tranfer(Scanner scanner){
+    private static void Tranfer(Scanner scanner, BankService bankService){
+        System.out.println("From Account : ");
+        String fromAccount=scanner.nextLine().trim();
+        System.out.println("To Account : ");
+        String toAccount=scanner.nextLine().trim();
+        System.out.println("Amount: ");
+        double amount= Double.valueOf(scanner.nextLine().trim());
+        bankService.tranfer(fromAccount,toAccount, amount, "Transfer");
+        System.out.println("Amount transer to "+fromAccount+" to "+toAccount);
+
+
 
     }
 
-    private static void AccountStatement(Scanner scanner){
+    private static void AccountStatement(Scanner scanner, BankService bankService){
+        System.out.println("Account Number : ");
+        String account=scanner.nextLine().trim();
+        bankService.getStatement(account).forEach(t->{
+            System.out.println(t.getTimestamp()+ " | "+ t.getType()+ " | "+t.getAmount()+ " | "+ t.getNote());
+        });
+
+
 
     }
 
