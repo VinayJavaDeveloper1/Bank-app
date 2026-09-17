@@ -34,7 +34,7 @@ public class Main {
                 case "3" -> withdraw(scanner, bankService);
                 case "4" -> Tranfer(scanner, bankService);
                 case "5" -> AccountStatement(scanner, bankService);
-                case "6" -> searchAccount(scanner);
+                case "6" -> searchAccount(scanner,bankService);
                 case "7" -> listAccounts(scanner, bankService);
                 case "0" -> running=false;
 
@@ -113,7 +113,12 @@ public class Main {
 
 
 
-    private static void searchAccount(Scanner scanner){
+    private static void searchAccount(Scanner scanner, BankService bankService){
+        System.out.println("Account Holder Name: ");
+        String q= scanner.nextLine().trim();
+        bankService.searchAccountByCustomerName(q).forEach(account ->
+                System.out.println(account.getAccountNumber()+ " | "+ account.getBalance()+" | "+ account.getBalance()));
+
 
     }
     private static void listAccounts(Scanner scanner,BankService bankService) {
