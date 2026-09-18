@@ -1,5 +1,6 @@
 package app;
 
+import exceptions.ValidationException;
 import service.BankService;
 import service.impl.BankServiceImpl;
 import java.util.Scanner;
@@ -9,7 +10,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
 
-        BankService bankService= new BankServiceImpl();
+        BankService bankService = new BankServiceImpl();
 
         boolean running = true;
         System.out.println("Welcome to console Bank");
@@ -28,18 +29,24 @@ public class Main {
             String choice = scanner.nextLine().trim();
             System.out.println("CHOICE: " + choice);
 
-            switch(choice){
-                case "1" -> openAccount(scanner, bankService);
-                case "2" -> Deposit(scanner, bankService);
-                case "3" -> withdraw(scanner, bankService);
-                case "4" -> Tranfer(scanner, bankService);
-                case "5" -> AccountStatement(scanner, bankService);
-                case "6" -> searchAccount(scanner,bankService);
-                case "7" -> listAccounts(scanner, bankService);
-                case "0" -> running=false;
+
+            try {
+                switch (choice) {
+                    case "1" -> openAccount(scanner, bankService);
+                    case "2" -> Deposit(scanner, bankService);
+                    case "3" -> withdraw(scanner, bankService);
+                    case "4" -> Tranfer(scanner, bankService);
+                    case "5" -> AccountStatement(scanner, bankService);
+                    case "6" -> searchAccount(scanner, bankService);
+                    case "7" -> listAccounts(scanner, bankService);
+                    case "0" -> running = false;
+                }
 
 
-            }
+                }catch (RuntimeException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+
         }
     }
 
@@ -55,15 +62,26 @@ public class Main {
         String accountType= scanner.nextLine().trim();
         System.out.println("Intial deposit (optional, blank for 0 : ");
         String amountStr= scanner.nextLine().trim();
+        if(amountStr.isBlank()) amountStr= "0";
         double initial= Double.valueOf(amountStr);
-       String accountNumber= bankService.openAccount(name, email, accountType);
+        if (initial < 0) {
+            throw new ValidationException("Initial deposit cannot be negative");
+        }
 
-       if(initial>0)
-           bankService.deposit(accountNumber, initial, "Initial Deposit ");
+        String accountNumber= bankService.openAccount(name, email, accountType);
+
+        if(initial>0)
+            bankService.deposit(accountNumber, initial, "Initial Deposit ");
         System.out.println("Account opened: "+ accountNumber);
-
-
     }
+//       String accountNumber= bankService.openAccount(name, email, accountType);
+//
+//       if(initial>0)
+//           bankService.deposit(accountNumber, initial, "Initial Deposit ");
+//        System.out.println("Account opened: "+ accountNumber);
+//
+//
+//    }
 
     private static void Deposit(Scanner scanner, BankService bankService){
         System.out.println("Account Number: ");
